@@ -51,27 +51,30 @@ class ControllablePageController extends PageController {
 /// 问题：目前滑动不跟手，不好解决
 class ControlablePageView extends StatelessWidget {
   ControlablePageView(this._itemBuilder, this._itemCount,
-      {ControllablePageController? pageController}) {
+      {ControllablePageController pageController, this.onPageChanged}) {
     this._controller = pageController ?? ControllablePageController();
   }
 
-  late ControllablePageController _controller;
+  ControllablePageController _controller;
 
   num downX = 0;
   bool isAni = false;
 
-  late double _currentDistance;
+  double _currentDistance;
 
   IndexedWidgetBuilder _itemBuilder;
   int _itemCount;
 
+  ValueChanged<int> onPageChanged;
+
   @override
   Widget build(BuildContext context) => Listener(
         child: PageView.builder(
-          itemBuilder: _itemBuilder,
           physics: NeverScrollableScrollPhysics(),
           itemCount: _itemCount,
           controller: _controller,
+          itemBuilder: _itemBuilder,
+          onPageChanged: onPageChanged,
         ),
         onPointerDown: (PointerDownEvent detail) {
           downX = detail.position.dx;
@@ -94,7 +97,6 @@ class ControlablePageView extends StatelessWidget {
         onPointerUp: (detail) => isAni = false,
       );
 }
-
 ```
 
 ## 调用
