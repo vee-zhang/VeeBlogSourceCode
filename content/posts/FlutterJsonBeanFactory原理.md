@@ -1,7 +1,7 @@
 ---
 title: FlutterJsonBeanFactory原理
 date: 2021-06-25 16:57:01
-tags: [pub,flutter,dart]
+tags: [flutter,dart]
 categories: [technology]
 ---
 

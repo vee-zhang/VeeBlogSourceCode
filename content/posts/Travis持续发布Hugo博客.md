@@ -1,9 +1,9 @@
 ---
-title: "Travis持续发布Hugo博客"
+title: Travis持续发布Hugo博客
 subtitle: ""
 date: 2021-07-22T17:01:25+08:00
 lastmod: 2021-07-22T17:01:25+08:00
-draft: true
+draft: false
 authors: []
 description: ""
 
