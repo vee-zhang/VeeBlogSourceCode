@@ -3,16 +3,33 @@ language: go
 go:
   - "1.8" # 指定Golang 1.8
 
+env:
+  global:
+    # Github Pages
+    - GH_REF: github.com/vee-zhang/vee-zhang.github.io
+
 # Specify which branches to build using a safelist
 # 分支白名单限制: 只有master分支的提交才会触发构建
 branches:
   only:
     - master
 
-install:
-  # 安装最新的hugo
-  #- go unset GOROOT
-  - go get -u -v github.com/spf13/hugo
+before_install:
+  # 安装依赖
+  # - wget -q -O libstdc++6.deb http://ftp.us.debian.org/debian/pool/main/g/gcc-9/libstdc++6_9.2.1-21_amd64.deb
+  # - sudo dpkg --force-all -i libstdc++6.deb
+  # 安装 hugo （version: v0.54.0）
+  - mkdir $HOME/src
+  - cd $HOME/src
+  - git clone https://github.com/gohugoio/hugo.git
+  - cd hugo
+  - go install
+
+# install:
+# 安装最新的hugo
+# - go get -u -v github.com/spf13/hugo
+# - wget -q -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.55.6/hugo_extended_0.55.6_Linux-64bit.deb
+# - sudo dpkg -i hugo.deb
 
 script:
   # 运行hugo命令
