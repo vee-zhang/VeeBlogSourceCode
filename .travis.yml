@@ -11,7 +11,7 @@ branches:
 
 install:
   # 安装最新的hugo
-  - go unset GOROOT
+  #- go unset GOROOT
   - go get -u -v github.com/spf13/hugo
 
 script:
