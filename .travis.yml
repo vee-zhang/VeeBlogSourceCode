@@ -12,11 +12,12 @@ branches:
 install:
   # 安装最新的hugo
   - go unset GOROOT
-  - go get github.com/spf13/hugo
+  - go get -u -v github.com/spf13/hugo
 
 script:
   # 运行hugo命令
-  - github.com/spf13/hugo
+  # - github.com/spf13/hugo
+  - hugo
 # deploy:
 #   provider: pages # 重要，指定这是一份github pages的部署配置
 #   skip-cleanup: true # 重要，不能省略
