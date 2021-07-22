@@ -12,7 +12,7 @@ branches:
 install:
   # 安装最新的hugo
   #- go unset GOROOT
-  - go get -u -v github.com/spf13/hugo
+  - go xcxget github.com/spf13/hugo
 
 script:
   # 运行hugo命令
