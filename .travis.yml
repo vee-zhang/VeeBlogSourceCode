@@ -27,16 +27,21 @@ branches:
 # - go install
 
 install:
-  # 安装最新的hugo
-  # - go get -u -v github.com/spf13/hugo
-  # - cd /home/src
+  # 安装hugo
   - wget -q -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.86.0/hugo_extended_0.86.0_Linux-64bit.deb
   - sudo dpkg -i hugo.deb
 
 script:
   # 运行hugo命令
-  # - github.com/spf13/hugo
   - hugo
+  - cd public
+  - git init
+  # - git config user.name "w01fb0ss"
+  # - git config user.email "xiaoshenlong1910@gmail.com"
+  - git add -A
+  - git commit -m "Update Blog By TravisCI With Build $TRAVIS_BUILD_NUMBER"
+  # Github Pages
+  - git push --force --quiet "https://$GITHUB_TOKEN@${GH_REF}" master:master
 # deploy:
 #   provider: pages # 重要，指定这是一份github pages的部署配置
 #   skip-cleanup: true # 重要，不能省略
