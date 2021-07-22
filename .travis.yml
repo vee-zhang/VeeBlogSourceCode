@@ -1,7 +1,7 @@
 language: go
 
-#go:
-#  - "1.8"  # 指定Golang 1.8
+go:
+  - "1.8" # 指定Golang 1.8
 
 # Specify which branches to build using a safelist
 # 分支白名单限制: 只有master分支的提交才会触发构建
@@ -11,12 +11,12 @@ branches:
 
 install:
   # 安装最新的hugo
+  # - go unset GOROOT
   - go get github.com/spf13/hugo
 
 script:
   # 运行hugo命令
-  - hugo
-  - yes
+  - github.com/spf13/hugo
 # deploy:
 #   provider: pages # 重要，指定这是一份github pages的部署配置
 #   skip-cleanup: true # 重要，不能省略
