@@ -29,7 +29,7 @@ branches:
 install:
   # 安装最新的hugo
   # - go get -u -v github.com/spf13/hugo
-  - cd $HOME/src
+  - cd /home/src
   - wget -q -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.55.6/hugo_extended_0.86.0_Linux-64bit.deb
   - sudo dpkg -i hugo.deb
 
