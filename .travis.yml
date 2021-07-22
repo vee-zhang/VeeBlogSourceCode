@@ -4,7 +4,7 @@ language: go
 #  - "1.8"  # 指定Golang 1.8
 
 # Specify which branches to build using a safelist
-# 分支白名单限制: 只有hugo分支的提交才会触发构建
+# 分支白名单限制: 只有master分支的提交才会触发构建
 branches:
   only:
     - master
@@ -26,4 +26,5 @@ deploy:
   #fqdn: blog.yuantops.com # 如果是自定义域名，此处要填
   keep-history: true # 是否保持target-branch分支的提交记录
   on:
+    repo: git@github.com:vee-zhang/vee-zhang.github.io.git
     branch: master # 博客源码的分支
