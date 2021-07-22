@@ -41,9 +41,7 @@ script:
   - git add -A
   - git commit -m "Update Blog By TravisCI With Build $TRAVIS_BUILD_NUMBER"
   # Github Pages
-  #- git push --force --quiet "https://$githubtoken@${GH_REF}" master:master
-  - git remote add origin git@github.com:vee-zhang/vee-zhang.github.io.git
-  - git push -u origin master
+  - git push --force --quiet "https://$githubtoken@${GH_REF}" master:master
 # deploy:
 #   provider: pages # 重要，指定这是一份github pages的部署配置
 #   skip-cleanup: true # 重要，不能省略
