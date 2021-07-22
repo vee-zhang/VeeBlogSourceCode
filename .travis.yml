@@ -36,12 +36,12 @@ script:
   - hugo
   - cd public
   - git init
-  # - git config user.name "w01fb0ss"
-  # - git config user.email "xiaoshenlong1910@gmail.com"
+  - git config user.name "vee-zhang"
+  - git config user.password "$githubtoken"
   - git add -A
   - git commit -m "Update Blog By TravisCI With Build $TRAVIS_BUILD_NUMBER"
   # Github Pages
-  - git push --force --quiet "https://$GITHUB_TOKEN@${GH_REF}" master:master
+  - git push --force --quiet "https://$githubtoken@${GH_REF}" master:master
 # deploy:
 #   provider: pages # 重要，指定这是一份github pages的部署配置
 #   skip-cleanup: true # 重要，不能省略
