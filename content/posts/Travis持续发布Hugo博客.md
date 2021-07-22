@@ -81,7 +81,7 @@ script:
 
 但是这样以来确定也很明显，就是Hugo不能自动更新了。留待以后解决吧。
 
-## 添加标记
+## 添加Travis构建结果图标
 
 <img src="https://www.travis-ci.com/vee-zhang/VeeBlogSourceCode.svg?token=zr2k46J9vsyyAMcKzMGx&amp;branch=master&amp;status=passed" alt="build:passed">
 
