@@ -1,5 +1,5 @@
 ---
-title: "Flutter的声明周期函数"
+title: "Flutter的生命周期函数"
 subtitle: ""
 date: 2021-07-23T14:32:39+08:00
 lastmod: 2021-07-23T14:32:39+08:00
