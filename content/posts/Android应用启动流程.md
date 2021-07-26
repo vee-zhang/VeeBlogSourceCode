@@ -2,6 +2,8 @@
 title: Android应用启动流程
 date: 2021-06-21 17:49:10
 tags: [Android]
+categories: []
+series: [Android运行流程]
 ---
 
 ## 流程

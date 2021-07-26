@@ -59,6 +59,11 @@ ThreadLocal是线程上下文的存储便变量，
    
    `sysnchronized`锁了this，锁的是当前的`MessageQueue`对象，他的所有的函数和代码块都会受限。
 
-9. 主线程是否允许qiut？
+9. 主线程是否允许quit？
 
     主线程不允许，一旦调用就会抛异常。
+
+## TODO
+
+1. 同步屏障的原理
+2. ThreadLocal原理进一步了解
