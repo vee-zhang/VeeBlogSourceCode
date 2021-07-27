@@ -99,13 +99,11 @@ public void setContentView(View v) {
 }
 ```
 
-### 创建DecorView
+### 创建SubDecorView
 
-在这里可以看出来，每个Activity中都存在一个`DecorView`，并且DecorView中存在一个id为'android.R.id.content'的ViewGroup，根据我的经验（网上的说法），这就是个`FrameLayout`。
+在这里可以看出来，每个Activity中都存在一个`SubDecorView`，并且SubDecorView中存在一个id为'android.R.id.content'的ViewGroup。
 
-调用`setContentView(resId)`其实就是把我们的顶层View附加到这个容器中。
-
-继续看它是怎么确保Decor的：
+继续看它是怎么确保SubDecor的：
 
 ```java
 private void ensureSubDecor() {
@@ -124,6 +122,27 @@ private ViewGroup createSubDecor() {
     // 重点是这里，确保window的存在
     ensureWindow();
     mWindow.getDecorView();
+
+    //根据风格主题从对应的模板填充SubDecorView
+    if (!mWindowNoTitle) {
+        if (mIsFloating) {
+            subDecor = (ViewGroup) inflater.inflate(
+                    R.layout.abc_dialog_title_material, null);
+            ...
+        } else if (mHasActionBar) {
+            ...
+            subDecor = (ViewGroup) LayoutInflater.from(themedContext)
+                    .inflate(R.layout.abc_screen_toolbar, null);
+            ...
+        }
+    } else {
+        if (mOverlayActionMode) {
+            subDecor = (ViewGroup) inflater.inflate(
+                    R.layout.abc_screen_simple_overlay_action_mode, null);
+        } else {
+            subDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);
+        }
+    }
 
     mWindow.setContentView(subDecor);
     ...
@@ -217,7 +236,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
 ### phoneWiodow.setContentView(resId)
 
-然后就是调用了phoneWindow的`setContentView(redId)`方法，这个设计模式很明显，不是代理就是装饰者：
+然后就是调用了phoneWindow的`setContentView(subDecor)`方法，这个设计模式很明显是个装饰者模式：
 
 ```java
 @Override
@@ -241,3 +260,9 @@ public void setContentView(int layoutResID) {
     ...
 }
 ```
+### 当前的View层级
+
+![](image/../../../static/images/Android视图层级1.png)
+
+
+         
