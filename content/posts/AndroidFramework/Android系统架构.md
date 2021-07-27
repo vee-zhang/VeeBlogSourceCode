@@ -27,7 +27,7 @@ license: ""
 
 <!--more-->
 
-![Android系统架构图](Android系统架构图.png)
+![Android系统架构图](AndroidSystem.png)
 
 我们主要开发的是App层，但是需要重点了解的是Framework层：
 
