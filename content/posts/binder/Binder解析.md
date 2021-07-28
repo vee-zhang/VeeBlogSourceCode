@@ -327,7 +327,7 @@ static final int TRANSACTION_getName = (android.os.IBinderFIRST_CALL_TRANSACTION
 
 onTransact方法的执行过程就是这样的。需要注意的是，如果此方法返回false，那么客户端的请求会失败，因此我们可以利用这个特性来做权限验证，毕竟我们也不希望随便一个进程都能远程调用我们的服务。
 
-#### Proxy#getName
+#### Proxy.getName
 
 这个方法运行在客户端。
 
@@ -339,7 +339,7 @@ onTransact方法的执行过程就是这样的。需要注意的是，如果此�
 
 然后服务端的`transact`方法会回调，知道RPC过程结束返回后，当前线程继续执行，并从_reply中读取服务端`transact`方法的返回值或者异常。
 
-最后先回收刚刚拿到的Parc#el，然后返回`_result`给客户端。
+最后先回收刚刚拿到的Parcel，然后返回`_result`给客户端。
 
 这里的`mRemote`是个`IBinder`类型，但是后者其实是`Binder`的接口，那么可以断定`mRemote`其实就是个`Binder`。
 
@@ -355,7 +355,7 @@ onTransact方法的执行过程就是这样的。需要注意的是，如果此�
 - DESCRIPTOR：当前Binder的唯一标志
 - TRANSACTION_getName：方法的唯一标志
 
-两个个类型：
+两个类型：
 
 - abstract class `Stub` extends android.os.Binder implements IMyAidlInterface
 - static class `Proxy` implements IMyAidlInterface
@@ -370,7 +370,7 @@ onTransact方法的执行过程就是这样的。需要注意的是，如果此�
 
 ## 梳理流程
 
-![binder通信机制](/images/binder通信机制.png)
+![binder通信机制](binder通信机制.png)
 
 1. 服务端向`ServiceManager`注册Binder。
 2. 客户端(通过`bindService()`回调)拿到Binder，调用`Stub.asInterface(binderObj)`。在这个方法中通过`DESCRIPTOR`标志在`ServiceManager`中去找Binder，如果找到直接返回，找不到就创建这个binder的Proxy对象。Proxy对象中包含被代理的业务方法。
