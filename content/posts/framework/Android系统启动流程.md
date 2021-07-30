@@ -34,17 +34,19 @@ license: ""
 
 ### 用户空间流程
 
-4. 调用init(pid=1)方法，启动init进程，进程id=1。
-5. 创建和挂载文件目录。
-6. 初始化【属性服务】。
-7. 解析init.rc，
-8. 启动zygote（孵化器）
-9. 启动MediaService
-10. 创建launcher
+1. 内核启动后，启动init进程(pid=1)调用init的入口main函数。
+2. 创建和挂载文件目录。
+3. 初始化并启动【属性服务】。
+4. 注册子进程信号处理函数，用来处理进程终止信号，防止僵尸进程。
+5. 解析init.rc文件，并启动Zygote。          
+6. 根据不同系统读取不同的init。zygotexx.rc启动zygote进程（孵化器）。
+7. 启动SystemServer
+8.  创建launcher
 
-### init.rc文件
+### Zygote启动流程
 
-由Android初始化语言（AIL）编写的脚本，
-
-1. 挂载目录
-2. 
+1. 创建JVM;
+2. 通过JNI调用`ZygoteInit`这个类的`main`函数，开始**进入java框架层*(´▽`ʃ♡ƪ)；
+3. 创建一个Socket服务端；
+4. fork出SystemServer进程（该进程中启动系统服务）；
+5. 调用`zygote.runSelectLoop`死循环，开始监听AMS的请求。 

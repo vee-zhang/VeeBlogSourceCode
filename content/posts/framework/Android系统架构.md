@@ -33,17 +33,17 @@ license: ""
 
 ### Java API Framework
 
-| 名称                | 功能                                       |
-| ------------------- | ------------------------------------------ |
-| ActivityManager     | 管理各个应用的生命周期，以及常用的页面路由 |
-| PackageManager      | 管理所有安装在Android系统中的应用程序      |
-| ResourceManager     | 提供App需要的各种非代码资源                |
-| WindowManager       | 管理所有开启的窗口程序                     |
-| ViewSystem          | 构建App的基本组件                          |
-| ContentProvider     | 再不同App之间共享数据                      |
-| LocationManager     | 提供定位功能                               |
-| NotificationManager | 通知管理                                   |
-| TelephoneManager    | 电话管理器，管理所有的移动设备功能         |
+| 名称                | 功能                                  |
+| ------------------- | ------------------------------------- |
+| ActivityManager     | 管理各个应用的生命周期                |
+| PackageManager      | 管理所有安装在Android系统中的应用程序 |
+| ResourceManager     | 提供App需要的各种非代码资源           |
+| WindowManager       | 管理所有开启的窗口程序                |
+| ViewSystem          | 构建App的基本组件                     |
+| ContentProvider     | 再不同App之间共享数据                 |
+| LocationManager     | 提供定位功能                          |
+| NotificationManager | 通知管理                              |
+| TelephoneManager    | 电话管理器，管理所有的移动设备功能    |
 
 ### 系统运行库
 
