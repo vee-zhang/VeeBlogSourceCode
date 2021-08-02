@@ -49,4 +49,11 @@ license: ""
 2. 通过JNI调用`ZygoteInit`这个类的`main`函数，开始**进入java框架层*(´▽`ʃ♡ƪ)；
 3. 创建一个Socket服务端；
 4. fork出SystemServer进程（该进程中启动系统服务）；
-5. 调用`zygote.runSelectLoop`死循环，开始监听AMS的请求。 
+5. 调用`zygote.runSelectLoop`死循环，开始监听AMS的请求。   
+
+### SystemServer的处理过程
+
+`SystemServer`进程用来创建系统服务，如AMS、WMS和PMS等。
+
+1. `ZygoteInit.java`的`startSystemServer`中启动`SystemServer`进程。
+2. 启动`PathClassLoader`
