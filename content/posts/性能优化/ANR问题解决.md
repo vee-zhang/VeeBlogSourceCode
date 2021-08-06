@@ -7,7 +7,7 @@ draft: false
 authors: []
 description: ""
 
-tags: [Android,性能优化]
+tags: [Android, 性能优化]
 categories: []
 series: [Android性能优化]
 
@@ -31,7 +31,7 @@ license: ""
 
 是指应用程序未响应。
 
-由`ActivityManager`和`WindowManager`两个系统服务进行监视的。
+由 `ActivityManager` 和 `WindowManager` 两个系统服务进行监视的。
 
 ### ANR产生场景
 
@@ -43,8 +43,8 @@ license: ""
 
 ### 行为
 
-- 前台产生ANR弹框询问用户是否等待；
-- 后台产生的ANR直接崩溃。
+* 前台产生ANR弹框询问用户是否等待；
+* 后台产生的ANR直接崩溃。
 
 ### 时限
 
@@ -65,13 +65,13 @@ license: ""
 2021-08-04 14:08:07.027 4563-4563/com.vee.myapplication I/Choreographer: Skipped 1202 frames!  The application may be doing too much work on its main thread.
 ```
 
-#### 最重要的一句话：
+#### 最重要的一句话
 
 **The application may be doing too much work on its main thread.**
 
 ### ~~trace文件~~
 
-位置：`data/anr/traces_*.txt`
+位置： `data/anr/traces_*.txt`
 
 找到firstPid，即发生ANR的进程id。
 
@@ -79,10 +79,9 @@ trace包含ANR的时间点和CPU使用率、主线程状态、其他线程状态
 
 但是5.0之后会被selinux挡住，获取不到。
 
-
 ### 墓碑文件
 
-看log中间的一条`Wrote stack traces to tombstoned`，意思已经把对战追踪写入了墓碑文件。**墓碑文件没有读写权限**。
+看log中间的一条 `Wrote stack traces to tombstoned` ，意思已经把对战追踪写入了墓碑文件。**墓碑文件没有读写权限**。
 
 ### 线上监控
 
@@ -92,7 +91,7 @@ trace包含ANR的时间点和CPU使用率、主线程状态、其他线程状态
 
 此方案基本不能用了。
 
-原理是监控`/data/anr`文件夹的变化，然后判断pid。
+原理是监控 `/data/anr` 文件夹的变化，然后判断pid。
 
 #### ~~BlockCanary~~
 
@@ -113,13 +112,13 @@ public static void loop(){
 }
 ```
 
-根据`queue.next()`与`msg.target.dispatchMessage(msg)`的时间差来判断是否发生ANR，做法是自定义一个looging传进去：
+根据 `queue.next()` 与 `msg.target.dispatchMessage(msg)` 的时间差来判断是否发生ANR，做法是自定义一个looging传进去：
 
 ```java
 Looper.getMainLooper.setMessageLogging(myLogging);
 ```
 
-通过重写`print`方法加入我们自己的逻辑。
+通过重写 `print` 方法加入我们自己的逻辑。
 
 问题：logging有可能被改成null，反而造成NPE问题。
 
@@ -129,4 +128,10 @@ Looper.getMainLooper.setMessageLogging(myLogging);
 
 #### ~~仿WatchDog~~
 
-启动一个守护线程，先向主线程发送一个消息，再通过`handler.postDelay()`休眠，而delay时间就是ANR的阈值，delay到期后判断主线程是否确实收到消息。
+启动一个守护线程，先向主线程发送一个消息，再通过 `handler.postDelay()` 休眠，而delay时间就是ANR的阈值，delay到期后判断主线程是否确实收到消息。
+
+#### 微信的解决方案
+
+[腾讯Matrix for Android对ANR监控的原理](https://cloud.tencent.com/developer/article/1848945)
+
+> 看完这篇文章，让我深深的认识到了什么是差距，什么是价值。
