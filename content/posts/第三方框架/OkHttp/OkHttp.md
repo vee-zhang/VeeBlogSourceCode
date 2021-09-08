@@ -521,6 +521,23 @@ public final class RealInterceptorChain implements Interceptor.Chain {
   // 初始为0
   private int calls;
 
+  // 注意看这个构造方法
+  private RealCall(OkHttpClient client, Request originalRequest, boolean forWebSocket) {
+    this.client = client;
+    this.originalRequest = originalRequest;
+    this.forWebSocket = forWebSocket;
+
+    // 直接初始化了一个重试拦截器
+    this.retryAndFollowUpInterceptor = new RetryAndFollowUpInterceptor(client, forWebSocket);
+  }
+
+  static RealCall newRealCall(OkHttpClient client, Request originalRequest, boolean forWebSocket) {
+    // Safely publish the Call instance to the EventListener.
+    RealCall call = new RealCall(client, originalRequest, forWebSocket);
+    call.eventListener = client.eventListenerFactory().create(call);
+    return call;
+  }
+
   public Response proceed(Request request, StreamAllocation streamAllocation, HttpCodec httpCodec,RealConnection connection) throws IOException {
 
     if (index >= interceptors.size()) throw new AssertionError();
@@ -546,7 +563,7 @@ public final class RealInterceptorChain implements Interceptor.Chain {
 
 我们把每一个RealInterceptorChain看作链条中的一环，每一环的`processd()`方法中，通过指定`index+1`来创建下一环，之后通过index拿到对应的拦截器，靠拦截器去处理下一环，如此递归调用，最后层层返回response。
 
-那么对于自身的`interceptors`来说，最后添加的拦截器是最先处理response的，也就是建立连接的始作俑者。
+那么我觉得，对于自身的`interceptors`来说，最后添加的拦截器是最先处理response的，也就是建立连接的始作俑者。
 
 ```java
 interceptors.addAll(client.interceptors());
@@ -561,7 +578,7 @@ if (!forWebSocket) {
 interceptors.add(new CallServerInterceptor(forWebSocket)); 
 ```
 
-
+然而在CallServerInterceptor中我找不到任何建立连接的代码。
 
 ### 事件监听器eventListener
 
