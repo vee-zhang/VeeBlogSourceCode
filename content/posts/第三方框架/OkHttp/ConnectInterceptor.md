@@ -215,7 +215,7 @@ public final class StreamAllocation {
       }
 
       if (result == null) {
-        // 从连接池中拿出一个连接
+        // 从连接池中拿出一个连接，这块有点麻烦，我记得Internal.instance是在client中初始化了一个匿名类，回头再看一下去
         Internal.instance.get(connectionPool, address, this, null);
         if (connection != null) {
           foundPooledConnection = true;
