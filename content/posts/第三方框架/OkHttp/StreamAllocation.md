@@ -25,7 +25,7 @@ lightgallery: false
 license: ""
 ---
 
-### 初始化
+### 初始化调用
 
 ```java
 public final class RetryAndFollowUpInterceptor implements Interceptor {
@@ -108,7 +108,8 @@ public final class StreamAllocation {
   private RealConnection findHealthyConnection(int connectTimeout, int readTimeout,
       int writeTimeout, int pingIntervalMillis, boolean connectionRetryEnabled,
       boolean doExtensiveHealthChecks) throws IOException {
-
+    
+    // 注意这个死循环
     while (true) {
       RealConnection candidate = findConnection(connectTimeout, readTimeout, writeTimeout,
           pingIntervalMillis, connectionRetryEnabled);
@@ -121,6 +122,7 @@ public final class StreamAllocation {
 
       // Do a (potentially slow) check to confirm that the pooled connection is still good. If it
       // isn't, take it out of the pool and start again.
+      // 如果没有健康的连接，就继续循环去等
       if (!candidate.isHealthy(doExtensiveHealthChecks)) {
         noNewStreams();
         continue;
@@ -144,6 +146,7 @@ public final class StreamAllocation {
     Route selectedRoute = null;
     Connection releasedConnection;
     Socket toClose;
+
     //锁加到了连接池上
     synchronized (connectionPool) {
       if (released) throw new IllegalStateException("released");
@@ -157,18 +160,19 @@ public final class StreamAllocation {
       // 关闭连接，回收socket
       toClose = releaseIfNoNewStreams();
 
+      // 复用this.connection
       if (this.connection != null) {
-        // We had an already-allocated connection and it's good.
         result = this.connection;
         releasedConnection = null;
       }
+
+
       if (!reportedAcquired) {
         // If the connection was never reported acquired, don't report it as released!
         releasedConnection = null;
       }
 
       if (result == null) {
-        // Attempt to get a connection from the pool.
         // 从连接池中拿出一个连接
         Internal.instance.get(connectionPool, address, this, null);
         if (connection != null) {
@@ -179,6 +183,8 @@ public final class StreamAllocation {
         }
       }
     }
+
+    // 关闭Socket
     closeQuietly(toClose);
 
     if (releasedConnection != null) {
@@ -238,9 +244,10 @@ public final class StreamAllocation {
       return result;
     }
 
-    // Do TCP + TLS handshakes. This is a blocking operation.
+    // 开始 TCP + TLS 握手，全程阻塞
     result.connect(connectTimeout, readTimeout, writeTimeout, pingIntervalMillis,
         connectionRetryEnabled, call, eventListener);
+
     routeDatabase().connected(result.route());
 
     Socket socket = null;
