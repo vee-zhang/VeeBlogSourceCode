@@ -563,7 +563,12 @@ public final class RealInterceptorChain implements Interceptor.Chain {
 
 我们把每一个RealInterceptorChain看作链条中的一环，每一环的`processd()`方法中，通过指定`index+1`来创建下一环，之后通过index拿到对应的拦截器，靠拦截器去处理下一环，如此递归调用，最后层层返回response。
 
+这样做的好处是什么呢，当然是**贴合http的请求过程**。但是问题也很明显，**方法调用层级过深，并且request的处理逻辑会与response的逻辑处理耦合在一起，变得密不可分**。
+
+> 其实以前用OK的时候就有这个感觉了，并且后来写Flutter的时候用到了dio框架，它的拦截器把request、response、error分开处理，结构更加的清晰。
+
 那么我觉得，对于自身的`interceptors`来说，最后添加的拦截器是最先处理response的，也就是建立连接的始作俑者。
+
 
 ```java
 interceptors.addAll(client.interceptors());
@@ -578,7 +583,7 @@ if (!forWebSocket) {
 interceptors.add(new CallServerInterceptor(forWebSocket)); 
 ```
 
-然而在CallServerInterceptor中我找不到任何建立连接的代码。
+然而在CallServerInterceptor中我找不到任何建立连接的代码。通过观察，我发现这个`retryAndFollowUpInterceptor`很有意思，于是接下来要去看看它是做什么用的。
 
 ### 事件监听器eventListener
 
