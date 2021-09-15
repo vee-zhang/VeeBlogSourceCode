@@ -506,11 +506,6 @@ public final class StreamAllocation {
         || routeSelector.hasNext();
   }
 
-  @Override public String toString() {
-    RealConnection connection = connection();
-    return connection != null ? connection.toString() : address.toString();
-  }
-
   public static final class StreamAllocationReference extends WeakReference<StreamAllocation> {
     /**
      * Captures the stack trace at the time the Call is executed or enqueued. This is helpful for
