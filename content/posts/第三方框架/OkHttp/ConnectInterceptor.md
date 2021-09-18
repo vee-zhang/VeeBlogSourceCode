@@ -49,7 +49,7 @@ public final class ConnectInterceptor implements Interceptor {
     // request的健康检查，其实就是不允许GET请求，看到这我挺纳闷
     boolean doExtensiveHealthChecks = !request.method().equals("GET");
 
-    // 创建一个新流
+    // 复用/创建一个流
     HttpCodec httpCodec = streamAllocation.newStream(client, chain, doExtensiveHealthChecks);
     
     // 建立连接
@@ -61,7 +61,7 @@ public final class ConnectInterceptor implements Interceptor {
 }
 ```
 
-这里重点看创建流和建立连接过程就行了。
+`ConnectInterceptor`的作用正如她的命名，是选择并启动连接的。
 
 ### StreamAllocation 数据流分配器
 
@@ -107,6 +107,7 @@ public final class StreamAllocation {
   private boolean canceled;
   private HttpCodec codec;
 
+  // 在RetryAndFollowUpInterceptor中调用构造方法初始化
   public StreamAllocation(ConnectionPool connectionPool, Address address, Call call,
       EventListener eventListener, Object callStackTrace) {
     this.connectionPool = connectionPool;
@@ -118,7 +119,8 @@ public final class StreamAllocation {
   }
 
   /**
-  * 找到健康的连接，创建HttpCodec并返回
+  * 在ConnectInterceptor中调用
+  * 创建新的流，返回HttpCodec
   * 注意⚠️：doExtensiveHealthChecks 如果不是GET请求就是true
   */
   public HttpCodec newStream(
@@ -178,9 +180,7 @@ public final class StreamAllocation {
     }
   }
 
-  /**
-  * 找到一个健康的连接，如果没有就创建个健康的
-  */
+  // 返回一个连接，优先返回连接池中已经存在的，没有则创建
   private RealConnection findConnection(int connectTimeout, int readTimeout, int writeTimeout,
       int pingIntervalMillis, boolean connectionRetryEnabled) throws IOException {
    
@@ -391,7 +391,7 @@ public final class StreamAllocation {
     }
   }
 
-  /** Forbid new streams from being created on the connection that hosts this allocation. */
+  // 我暂时理解为关闭数据流
   public void noNewStreams() {
     Socket socket;
     Connection releasedConnection;

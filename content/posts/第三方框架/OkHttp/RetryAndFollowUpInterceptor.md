@@ -40,16 +40,6 @@ RealCall初始化时，会创建这个`RetryAndFollowUpInterceptor`拦截器，�
 
 观察RealCall中的所有默认拦截器，RealCall对于这个拦截器的处理优先级是最高的，甚至**在构造方法中就初始化**了，而且在众多内置拦截器中，**RealCall单只给`RetryAndFollowUpInterceptor`传递了OkhttpClient**，可见这个拦截器的重要性！
 
-### RetryAndFollowUpInterceptor的作用
-
-- 建立连接；
-- 调用下一个拦截器；
-- 提供不少于20次的重定向处理；
-- 提供重试机制；
-- 释放连接；
-
-这个拦截器不仅提供了重试与重定向机制，还负责**连接的维护**，包括建立和释放连接资源。
-
 ### RetryAndFollowUpInterceptor的处理过程
 
 ```java
@@ -104,14 +94,14 @@ public final class RetryAndFollowUpInterceptor implements Interceptor {
         response = realChain.proceed(request, streamAllocation, null, null);
         releaseConnection = false;
       } catch (RouteException e) {
-        //尝试恢复连接
+        //发现异常就重试
         if (!recover(e.getLastConnectException(), streamAllocation, false, request)) {
           throw e.getLastConnectException();
         }
         releaseConnection = false;
         continue;
       } catch (IOException e) {
-        //尝试恢复连接
+        //发现异常就重试
         ...
         continue;
       } finally {
@@ -145,8 +135,7 @@ public final class RetryAndFollowUpInterceptor implements Interceptor {
       // 关闭 response的body
       closeQuietly(response.body());
 
-      // 如果重定向次数大于20次就会报错
-      // 我不太明白为啥要限制到20次，而不是50次
+      // 如果重定向/重试次数大于20次就会报错
       if (++followUpCount > MAX_FOLLOW_UPS) {
         streamAllocation.release();
         throw new ProtocolException("Too many follow-up requests: " + followUpCount);
@@ -184,15 +173,18 @@ public final class RetryAndFollowUpInterceptor implements Interceptor {
         client.proxy(), client.protocols(), client.connectionSpecs(), client.proxySelector());
   }
 
-  // 尝试从与服务器通信失败中恢复
+  // 尝试从与服务器通信失败中恢复（重试）
   private boolean recover(IOException e, StreamAllocation streamAllocation,
       boolean requestSendStarted, Request userRequest) {
 
     streamAllocation.streamFailed(e);
 
     // 重试
-    // return false - 应用层拒绝了重试
+    // return false - 应用层拒绝了重试,这是我们在初始化client时设置的
     if (!client.retryOnConnectionFailure()) return false;
+    ...
+    // 如果有更多的路由，比如DNS返回了多个CDN的ip地址，就切换线路重试，否则取消。
+    if (!streamAllocation.hasMoreRoutes()) return false;
     ...
     return true;
   }
@@ -307,3 +299,58 @@ public final class RetryAndFollowUpInterceptor implements Interceptor {
   }
 }
 ```
+
+### 总结
+
+`RetryAndFollowUpInterceptor`的职责：
+
+- 提供了异常重试功能；
+- 提供固定不超过20次重定向功能；
+- 提供「取消请求」功能。
+
+本来根据单一原则，不应该把三个功能耦合到一个拦截器，但是为什么JW大神还是如此来设计呢？
+
+而且我还有个疑问就是，重试次数竟然是固定不超过20次，不能由我们自己来设置。
+
+### 解决不能自定义重试次数的问题
+
+#### 方式一：自定义重试拦截器
+
+首先关闭OkHttp自带的重试机制
+
+```java
+OkHttpClient.Builder()
+            .retryOnConnectionFailure(false)
+            .build()
+```
+
+然后自定义一个重试拦截器，如下：
+
+```java
+public class RetryIntercepter implements Interceptor {
+
+  public int maxRetry;//最大重试次数
+  private int retryNum = 0;//假如设置为3次重试的话，则最大可能请求4次（默认1次+3次重试）
+
+  public RetryIntercepter(int maxRetry) {
+      this.maxRetry = maxRetry;
+  }
+
+  @Override
+  public Response intercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      System.out.println("retryNum=" + retryNum);
+      Response response = chain.proceed(request);
+      while (!response.isSuccessful() && retryNum < maxRetry) {
+          retryNum++;
+          System.out.println("retryNum=" + retryNum);
+          response = chain.proceed(request);
+      }
+      return response;
+  }
+}
+```
+
+>上面是我从网上找到的例子，其实他写的并不好，但是可以作为一个思路。
+
+#### 方式二 RxJava的retryWhen操作符

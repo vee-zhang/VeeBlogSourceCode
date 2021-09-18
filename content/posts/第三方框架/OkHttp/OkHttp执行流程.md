@@ -94,7 +94,7 @@ public Builder() {
 
 OkHttpClient主要作用就是对网络请求进行配置。
 
-#### Dispatcher 执行策略，同步或异步处理
+#### Dispatcher 任务分发器，同步与异步有不同的分发机制
 
 ```java
 public final class Dispatcher {

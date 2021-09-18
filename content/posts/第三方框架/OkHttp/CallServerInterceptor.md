@@ -1,6 +1,6 @@
 ---
 title: "CallServerInterceptor"
-subtitle: ""
+subtitle: "呼叫服务拦截器"
 date: 2021-09-07T17:45:01+08:00
 lastmod: 2021-09-07T17:45:01+08:00
 draft: false
@@ -27,7 +27,9 @@ license: ""
 
 <!--more-->
 
-#### CallServerInterceptor 负责建立连接
+### CallServerInterceptor 
+
+负责实际与server交互（写读），并且完成了报文的封装与解析。
 
 ```java
 @Override public Response intercept(Chain chain) throws IOException {
