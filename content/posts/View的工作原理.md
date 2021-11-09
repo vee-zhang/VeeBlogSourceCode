@@ -29,7 +29,7 @@ View的绘制流程是从ViewRoot的`performTraversals()`方法开始的，经�
 
 ### layout
 
-用来确定子元素的位置。需要变脸子元素，调用其`layout`方法。
+用来确定子元素的位置。需要遍历子元素，调用其`layout`方法。
 
 决定了View的四个顶点的坐标和实际的View的宽和高。
 
@@ -82,3 +82,12 @@ view的measure过程和Activitu生命周期不同步，所有在onCreate、onSta
 
 
 ## 生命周期
+
+1. `Constructors`构造函数；
+2. `onFinishInflate`当该View及其子View从XML文件中填充完成后会被调用；
+3. `onAttachedToWindow`附加到窗口;
+4. `onMeasure`计算尺寸时调用；
+5. `onSizeChanged`当前view尺寸变化时调用;
+6. `onLayout`调用所有子view的`layout`方法为每一个子view确定位置；
+7. `onDraw`绘图时调用；
+8. `onDetackedFromWindow`脱离窗口时调用。
