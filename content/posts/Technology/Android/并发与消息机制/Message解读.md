@@ -22,6 +22,7 @@ public static final Object sPoolSync = new Object();
 private static Message sPool;
 private static int sPoolSize = 0;
 private static final int MAX_POOL_SIZE = 50;
+
 @UnsupportedAppUsage
 /*package*/ Message next;
 

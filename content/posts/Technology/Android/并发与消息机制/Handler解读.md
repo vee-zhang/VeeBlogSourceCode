@@ -25,7 +25,18 @@ public final Message obtainMessage(){
 }
 ```
 
-Handler的`obtainMessage()`其实还是调用`Message.obtain()`方法，所以直接调用后者反而效率更高。
+Handler的`obtainMessage()`其实还是调用`Message.obtain()`方法，所以直接调用后者反而效率更高。那么来看一下`Message.obtain()`干了什么：
+
+```java
+public static Message obtain(Handler h) {
+    Message m = obtain();
+    m.target = h;
+
+    return m;
+}
+```
+
+没错，就是设置了一个**target**。
 
 ## sendMessage
 
@@ -51,6 +62,9 @@ public boolean sendMessageAtTime(@NonNull Message msg, long uptimeMillis) {
     return enqueueMessage(queue, msg, uptimeMillis);
 }
 
+/**
+* 核心在这里
+*/
 private boolean enqueueMessage(@NonNull MessageQueue queue, @NonNull Message msg,
             long uptimeMillis) {
     msg.target = this;
@@ -63,7 +77,15 @@ private boolean enqueueMessage(@NonNull MessageQueue queue, @NonNull Message msg
 }
 ```
 
-`sendMessage`最后是通过`MessageQueue`的`enqueueMessage`实现消息的发送。
+`sendMessage`最后是通过`MessageQueue`的`enqueueMessage`实现消息的发送。那么我知道`message`有个`sendToTarget`方法，其实也是通过handler去发消息的。
+
+```java
+public void sendToTarget() {
+    target.sendMessage(this);
+}
+```
+
+**当消息发出后，就进入了生产者模型中。**
 
 ## post
 
