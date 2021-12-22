@@ -40,6 +40,7 @@ ActivityManagerService诞生自SystemServer，主要负责四大组件的启动�
 
 ![AMS与GUI的关系](AMS与GUI的关系.png)
 ![AMS与GUI的关系](/images/启动流程.png)
+![AMS与GUI的关系](imgg.png)
 <img src="/AMS与GUI的关系.png"/>
 
 ### Hook点
