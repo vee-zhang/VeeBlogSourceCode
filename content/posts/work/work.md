@@ -1,5 +1,5 @@
 ---
-title: "工作日志"
+title: "work"
 subtitle: ""
 date: 2021-12-13T15:55:27+08:00
 lastmod: 2021-12-13T15:55:27+08:00
