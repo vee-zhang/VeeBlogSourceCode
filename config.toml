@@ -709,10 +709,6 @@ enableEmoji = true
     startLevel = 2
     endLevel = 6
 
-[markup.goldmark]
-  [markup.goldmark.renderer]
-      unsafe = true
-
 # Author config
 # 作者配置
 [author]

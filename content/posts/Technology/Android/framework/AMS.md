@@ -38,7 +38,7 @@ ActivityManagerService诞生自SystemServer，主要负责四大组件的启动�
 * Client：由ActivityManager封装一部分服务接口供Client调用。ActivityManager内部通过调用ActivityManagerNative的getDefault方法，可以得到一ActivityManagerProxy对像的引用，进而通过该代理对像调用远程服务的方法；
 * Server: 由ActivityManagerService实现，提供Server端的系统服务。
 
-![AMS与GUI的关系](AMS与GUI的关系.png)
+![AMS与GUI的关系](./AMS与GUI的关系.png)
 
 ### Hook点
 
