@@ -96,11 +96,11 @@ boolean enqueueMessage(Message msg, long when) {
 
 简而言之，`enqueueMessage`的作用是采用`synchronized`同步阻塞的方式操作Message链条的头部，依据Message的延迟时间，打断链条重新排序，同时修改msg的状态，利用共享内存（mMessages）达到线程间通信的目的。
 
-那么所谓的`Handler.sendMessage(msg)`是真的发送消息吗？并不是！它只是修改了Looper中持有的MessageQueue中的mMessages的链条顺序，然后等待`Looper`不断循环获取，再传递回`mHandler.dispatchMessage(msg)`而已。但这一改加一取，就能达到线程间通信的效果，并让我一直误以为是真的通过序列化之后发送出去。
+那么所谓的`Handler.sendMessage(msg)`是真的发送消息吗？并不是！它只是修改了Looper中持有的MessageQueue中的mMessages的链条顺序，然后等待`Looper`不断循环获取，再传递回`mHandler.dispatchMessage(msg)`而已。但这一改加一取，就能达到线程间通信的效果，并让我一直误以为是真的通过序列化之后发送出去，而这种方式叫做**共享内存**。
 
 >不看不知道，一看好鸡贼！
 
-## next
+### next方法
 
 ```java
 @UnsupportedAppUsage
@@ -256,7 +256,7 @@ MessageQueue.IdleHandler idleHandler = new MessageQueue.IdleHandler() {
 Looper.getMainLooper().getQueue().addIdleHandler(idleHandler);
 ```
 
-引自[](https://blog.csdn.net/hbdatouerzi/article/details/104148722)
+[引自这里](https://blog.csdn.net/hbdatouerzi/article/details/104148722)
 
 >我惊叹啊，还能这么玩啊～～想到以前面试官问过我怎么做延迟启动，我回答ContentProvider和StartUp，我觉得是没错的，但是她想要的应该就是这个IdleHandler。
 
@@ -318,3 +318,69 @@ if (pendingIdleHandlerCount <= 0) {
 1. MessageQueue中没有消息或当前消息不必马上执行；
 2. Looper没有释放；
 3. 队列中存在IdleHandler。
+
+### 同步屏障与异步消息
+
+前面经常提到*异步消息*，对于异步消息的处理如下：
+
+1. 在`enqueueMessage`方法中判断是异步消息的话，会让cpu保持唤醒状态；
+2. 在`next`方法中，依靠同步屏障来优先查找异步消息返回处理。
+
+#### 检索并使用同步屏障
+
+```java
+if (msg != null && msg.target == null) {
+    // Stalled by a barrier.  Find the next asynchronous message in the queue.
+    // 靠栅栏阻塞，在队列中找到下一个异步消息
+    do {
+        prevMsg = msg;
+        msg = msg.next;
+    } while (msg != null && !msg.isAsynchronous());
+}
+```
+
+#### 插入同步屏障
+
+```java
+    @UnsupportedAppUsage
+    @TestApi
+    public int postSyncBarrier() {
+        return postSyncBarrier(SystemClock.uptimeMillis());
+    }
+
+    private int postSyncBarrier(long when) {
+        // Enqueue a new sync barrier token.
+        // We don't need to wake the queue because the purpose of a barrier is to stall it.
+        synchronized (this) {
+
+            // 缓存序号
+            final int token = mNextBarrierToken++;
+
+            // 创建一个无target的消息
+            final Message msg = Message.obtain();
+            msg.markInUse();
+            msg.when = when;
+            msg.arg1 = token;
+
+
+            Message prev = null;
+            Message p = mMessages;
+
+            插入到指定时间
+            if (when != 0) {
+                while (p != null && p.when <= when) {
+                    prev = p;
+                    p = p.next;
+                }
+            }
+            if (prev != null) { // invariant: p == prev.next
+                msg.next = p;
+                prev.next = msg;
+            } else {
+                msg.next = p;
+                mMessages = msg;
+            }
+            return token;
+        }
+    }
+````
