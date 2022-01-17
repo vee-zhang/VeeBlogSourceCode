@@ -4,7 +4,7 @@ date: 2021-03-04 20:01:35
 tags: [Android, Handler, Looper, Message, MessageQueue]
 ---
 
-## 回顾
+### 回顾
 
 handler发送消息：
 
@@ -40,7 +40,7 @@ for (;;) {
 }
 ```
 
-## enqueueMessage
+### enqueueMessage
 
 ```java
 Message mMessages;
