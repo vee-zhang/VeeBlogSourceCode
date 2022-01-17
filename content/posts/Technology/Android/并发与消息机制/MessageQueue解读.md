@@ -328,10 +328,11 @@ if (pendingIdleHandlerCount <= 0) {
 
 #### 检索并使用同步屏障
 
+`MessageQueue`的`next()`方法：
+
 ```java
 if (msg != null && msg.target == null) {
-    // Stalled by a barrier.  Find the next asynchronous message in the queue.
-    // 靠栅栏阻塞，在队列中找到下一个异步消息
+    // 如果target为空，则判定为遇到了栅栏，此时便利后面的所有消息，找到异步消息优先处理
     do {
         prevMsg = msg;
         msg = msg.next;
@@ -349,11 +350,10 @@ if (msg != null && msg.target == null) {
     }
 
     private int postSyncBarrier(long when) {
-        // Enqueue a new sync barrier token.
-        // We don't need to wake the queue because the purpose of a barrier is to stall it.
+
         synchronized (this) {
 
-            // 缓存序号
+            // 缓存token
             final int token = mNextBarrierToken++;
 
             // 创建一个无target的消息
@@ -383,4 +383,12 @@ if (msg != null && msg.target == null) {
             return token;
         }
     }
-````
+```
+
+#### 总结
+
+- 屏障消息和普通消息区别在于屏幕没有target，普通消息有target是因为它需要将消息分发给对应的target，而屏障不需要被分发，它就是用来挡住普通消息来保证异步消息优先处理的；
+- 屏障和普通消息一样可以根据时间来插入到消息队列中的适当位置，并且**只会挡住它后面的同步消息的分发**；
+- postSyncBarrier会返回一个token，利用这个token可以撤销屏障；
+- postSyncBarrier是hide的，使用它得用反射；
+- 插入普通消息会唤醒消息对了，但插入屏障不会。
