@@ -27,7 +27,7 @@ out.writeString("哈哈");
 
 装饰模式在Android中的体现:
 
-![装饰模式在Android中的体现](/images/装饰者模式在Android中的体现.png)
+![装饰模式在Android中的体现](装饰者模式在Android中的体现.png)
 
 ## 字符流
 

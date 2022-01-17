@@ -262,7 +262,7 @@ public void setContentView(int layoutResID) {
 ```
 ### 当前的View层级
 
-![](image/../../../static/images/Android视图层级1.png)
+![](Android视图层级1.png)
 
 
          

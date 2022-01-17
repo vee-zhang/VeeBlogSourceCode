@@ -6,7 +6,7 @@ tags: [Android]
 
 ## 类图
 
-![类图](/images/handler相关/Looper.dotuml.png)
+![类图](Looper.dotuml.svg)
 
 ## prepare
 

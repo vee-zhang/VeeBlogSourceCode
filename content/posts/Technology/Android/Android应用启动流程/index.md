@@ -8,7 +8,7 @@ series: [Android运行流程]
 
 ## 流程
 
-![](/images/启动流程.png)
+![](启动流程.png)
 
 1. 点击桌面App图标，Launcher进程采用Binder IPC向system_server进程发起startActivity请求；
 2. system_server进程接收到请求后，向zygote进程发送创建进程的请求；

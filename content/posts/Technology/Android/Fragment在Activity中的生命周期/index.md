@@ -18,7 +18,7 @@ Fragment的懒加载主要是用于`ViewPager`中，ViewPager会在加载fragmen
 
 ## 流程图
 
-![生命周期](/source/resource/生命周期.svg)
+![生命周期](生命周期.svg)
 
 ## 启动
 

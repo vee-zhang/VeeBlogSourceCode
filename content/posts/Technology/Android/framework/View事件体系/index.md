@@ -8,7 +8,7 @@ tags: [Android, View]
 
 ### 主要位置参数
 
-![View位置参数](/images/view位置参数.png)
+![View位置参数](view位置参数.png)
 
 View的位置主要由它的四个顶点(相对父容器)来决定：
 

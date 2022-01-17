@@ -4,7 +4,9 @@ date: 2021-03-03 15:03:03
 tags: [Android, message]
 ---
 
-## 创建
+![类图](Message.dotuml.png)
+
+### 创建
 
 我们都知道创建Message的时候有两种方式：
 
@@ -48,7 +50,7 @@ public static Message obtain() {
 
 所以，**`Message`的实质是单向链+Size整数，最多不能超过50个！**
 
-## 回收复用指定的Message
+### 回收复用指定的Message
 
 ```java
 /**
@@ -78,7 +80,7 @@ public static Message obtain(Message orig) {
 
 如果需要回收并且复用指定的Message，那么就把该message传递到obtain方法中。在方法内部，其实是通过copy值给回收的message来完成。
 
-## target
+### target
 
 `obtain`方法可以传递一个Handler对象。
 
@@ -98,7 +100,7 @@ public static Message obtain(Handler h) {
 
 如果指定了对象，就可以通过`sendToTarget()`方法直接发送Message了。
 
-## callback
+### callback
 
 ```java
 /**
@@ -120,13 +122,13 @@ public static Message obtain(Handler h) {
 
 但是一旦给消息设置了`callback`，实测Handler的`handleMessage`会失效，这是为啥，要想一想了。
 
-## 传递
+### 传递
 
 - `mHandler.send(msg);`
 - `msg.sendToTarget();`
 - Parcelable
 
-## 异步
+### 异步
 
 设置消息是否异步，这意味着它不受{@link Looper}同步障碍的约束。
 
@@ -142,7 +144,7 @@ public void setAsynchronous(boolean async) {
 
 异步方式我平时很少使用，听说是可以提升消息的重要性，如果标明异步，那么MessageQueue将会由近及远优先处理异步消息，然后再处理同步消息。
 
-## 回收
+### 回收
 
 ```java
 public void recycle() {
@@ -194,6 +196,6 @@ void recycleUnchecked() {
 
 `MAX_POOL_SIZE`常量的值为50，那么就是**一个App最多能有50个闲置的message**。
 
-## 总结
+### 总结
 
 `Message`的原理是**整数sPoolSize+静态单向链sPoll**，平时我们使用的message都是从`sPoll`中取**队首**，状态改为闲置，回收后把状态改成「使用中」，并插回到**队首**，遵循「后进先出」原则，并在**填充**和**回收**时通过`synchronized`保障线程安全。

@@ -1,8 +1,0 @@
-
-ClassDiagram {
-    class MessageQueue {
-        private mQuitAllowed:bool
-        private mPtr:long
-        private mMessages:Message
-    }
-}

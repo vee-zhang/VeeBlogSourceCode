@@ -13,7 +13,7 @@ tags:
 - Timed waiting 计时等待
 - Terminated 终止
 
-![生命周期](/images/thread生命周期.jpg)
+![生命周期](thread生命周期.jpg)
 
 ## 核心方法
 

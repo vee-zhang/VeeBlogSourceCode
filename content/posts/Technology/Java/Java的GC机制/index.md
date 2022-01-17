@@ -39,7 +39,7 @@ GC线程负责具体回收工作，GC线程是个守护线程。
 
 以`GC Root`对象作为起点，向下搜索，搜索的路径佳作“引用链”。当一个对象到GC Roots没有任何引用链相连时（不可达）,说明这个对象是垃圾。
 
-![可达性算法示意图](/images/可达性算法.png)
+![可达性算法示意图](可达性算法.png)
 
 ### Java的四种引用类型
 
@@ -77,7 +77,7 @@ WeakReference<Object> sr = new WeakReference<>(new Object());
 
 ## GC的位置
 
-![](/images/堆模型.png)
+![](堆模型.png)
 
 从上图中可以看到JVMM划分成了两大块三大区和三小区：
 
