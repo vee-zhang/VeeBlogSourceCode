@@ -11,21 +11,8 @@ tags: []
 categories: []
 series: []
 
-hiddenFromHomePage: false
-hiddenFromSearch: false
-
-featuredImage: ""
-featuredImagePreview: ""
-
-toc:
-  enable: true
-math:
-  enable: false
-lightgallery: false
-license: ""
 ---
-本文是转载，出处：[满满的WebView优化干货，让你的H5实现秒开体验](https://juejin.cn/post/7043706765879279629#heading-2)，
-感谢作者**miaowmiaow**
+
 <!--more-->
 
 ### WebView与原生对比差在哪里？
@@ -149,7 +136,7 @@ class WebViewManager private constructor() {
     }
     return canBack
 }
-    ```
+```
 
 ### 渲染优化（JS、CSS、图片）
 
@@ -303,16 +290,10 @@ private fun cacheResourceRequest(
 
 客户端加载模板代码（温馨提示：上面只是例子，实际模板根据情况拆分），加载完成后再调用 JS 方法注入数据。
 
-```html
-webView.evaluateJavascript("javascript:changeContent('<p>我是HTML</p>')") {}
-```
+
 数据哪里来呢？这里以列表页跳转详情页举个例子，仅供参考：
 
 列表页接口返回列表数据的时候带上详情内容，跳转详情页的时候带上内容数据。优点简单粗暴，缺点耗费流量。
 
 当然还有其他方法这里不再多说，可根据自己的实际需求进行选择。
 
-作者：miaowmiaow
-链接：https://juejin.cn/post/7043706765879279629
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
