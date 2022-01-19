@@ -82,12 +82,12 @@ public static Message obtain(Message orig) {
 
 `obtain`方法可以传递一个Handler对象。
 
-```
+```java
 /**
-    * Same as {@link #obtain()}, but sets the value for the <em>target</em> member on the Message returned.
-    * @param h  Handler to assign to the returned Message object's <em>target</em> member.
-    * @return A Message object from the global pool.
-    */
+* Same as {@link #obtain()}, but sets the value for the <em>target</em> member on the Message returned.
+* @param h  Handler to assign to the returned Message object's <em>target</em> member.
+* @return A Message object from the global pool.
+*/
 public static Message obtain(Handler h) {
     Message m = obtain();
     m.target = h;

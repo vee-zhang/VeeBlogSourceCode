@@ -4,7 +4,7 @@ date: 2021-03-04 20:01:35
 tags: [Android, Handler, Looper, Message, MessageQueue]
 ---
 
-## 回顾
+### 回顾
 
 handler发送消息：
 
@@ -35,12 +35,12 @@ for (;;) {
         //...
     }
 
-    //无论如何都会回收消息
+    //回收消息
     msg.recycleUnchecked();
 }
 ```
 
-## enqueueMessage
+### enqueueMessage
 
 ```java
 Message mMessages;
@@ -94,13 +94,13 @@ boolean enqueueMessage(Message msg, long when) {
 }
 ```
 
-简而言之，`enqueueMessage`的作用是采用`synchronized`同步阻塞的方式操作Message链条的头部，依据Message的延迟时间，打断链条重新排序，同时修改msg的状态，利用共享内存（mMessages）达到线程间通信的目的。
+简而言之，`enqueueMessage`的作用是采用`synchronized`同步阻塞的方式操作Message链条，依据Message的延迟时间，打断链条重新排序，同时修改msg的状态，利用共享内存（mMessages）达到线程间通信的目的。
 
 那么所谓的`Handler.sendMessage(msg)`是真的发送消息吗？并不是！它只是修改了Looper中持有的MessageQueue中的mMessages的链条顺序，然后等待`Looper`不断循环获取，再传递回`mHandler.dispatchMessage(msg)`而已。但这一改加一取，就能达到线程间通信的效果，并让我一直误以为是真的通过序列化之后发送出去。
 
 >不看不知道，一看好鸡贼！
 
-## next
+### next
 
 ```java
 @UnsupportedAppUsage
@@ -128,7 +128,7 @@ Message next() {
             Message prevMsg = null;
             Message msg = mMessages;
             if (msg != null && msg.target == null) {
-                //靠栅栏停滞，找到下一个异步msg
+                //靠栅栏停滞，找到下一个非异步msg
                 do {
                     prevMsg = msg;
                     msg = msg.next;
@@ -163,10 +163,6 @@ Message next() {
             }
 
             ///接下来就是喜闻乐见的idleHandler了
-
-            // If first time idle, then get the number of idlers to run.
-            // Idle handles only run if the queue is empty or if the first message
-            // in the queue (possibly a barrier) is due to be handled in the future.
             if (pendingIdleHandlerCount < 0
                     && (mMessages == null || now < mMessages.when)) {
                 pendingIdleHandlerCount = mIdleHandlers.size();//如果没有添加过idleHandler，那么就是0
@@ -318,3 +314,46 @@ if (pendingIdleHandlerCount <= 0) {
 1. MessageQueue中没有消息或当前消息不必马上执行；
 2. Looper没有释放；
 3. 队列中存在IdleHandler。
+
+### 同步栅栏(SyncBarrier)与异步消息
+
+#### 插入同步栅栏
+
+实际上就是从回收池中取到一个消息，然后给她一个token，放到队列中适当的位置，成为一个标记位。
+
+```java
+private int postSyncBarrier(long when) {
+    synchronized (this) {
+        final int token = mNextBarrierToken++;
+        final Message msg = Message.obtain();
+        msg.markInUse();
+        msg.when = when;
+        //给msg一个token
+        msg.arg1 = token;
+
+        Message prev = null;
+        Message p = mMessages;
+        if (when != 0) {
+            while (p != null && p.when <= when) {
+                prev = p;
+                p = p.next;
+            }
+        }
+        if (prev != null) { // invariant: p == prev.next
+            msg.next = p;
+            prev.next = msg;
+        } else {
+            msg.next = p;
+            mMessages = msg;
+        }
+        return token;
+    }
+}
+```
+
+### 总结
+
+`MessageQueue`最重要的就是两个方法：
+1. `enqueueMessage(Message msg)`负责将消息插入队列；
+2. `next()`负责找到下一个应该被处理的消息（队尾或者下一个到时的消息）；
+3. 

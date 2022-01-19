@@ -8,7 +8,6 @@ tags: [Android, AsyncTask]
 
 ```java
 public class MainActivity extends AppCompatActivity {
-
     TextView tv;
 
     @Override

@@ -24,16 +24,16 @@ private static void prepare(boolean quitAllowed) {
 
 /**
  * 构造方法中创建MessageQueue，并引用当前线程。
- * /
+ */
 private Looper(boolean quitAllowed) {
     mQueue = new MessageQueue(quitAllowed);
     mThread = Thread.currentThread();
 }
 ```
 
-`Looper.prepare()`方法只是为了初始化`ThreadLocal`。
+`Looper.prepare()`方法只是为了创建`MessageQueue`和初始化`ThreadLocal`。
 
-之前了解过，`ThreadLocal`可以包证多线程访问共享变量的线程安全问题。他不像`synchronized`靠阻塞实现线程安全，而是通过对变量拷贝的方式，使每一个线程都操作自己的拷贝，实现线程安全，所以效率要优于`synchronized`。[详情看这里](https://www.jianshu.com/p/6fc3bba12f38)和[这里](http://www.jasongj.com/java/threadlocal/)
+之前了解过，`ThreadLocal`可以保证多线程访问共享变量的线程安全问题。他不像`synchronized`靠阻塞实现线程安全，而是通过对变量拷贝的方式，使每一个线程都操作自己的拷贝，实现线程安全，所以效率要优于`synchronized`。[详情看这里](https://www.jianshu.com/p/6fc3bba12f38)和[这里](http://www.jasongj.com/java/threadlocal/)
 
 ThreadLocal在此处的使用是为了保证每个线程都只能分配到一个Looper对象，多次调用`Looper.prepary()`方法会抛出异常。而且在其他线程去操作这个Looper对象可以保证线程安全，比如在主线程中调用`mHandler.getLooper().quitSafely()`来终止子线程的Looper对象的`loop()`循环。
 
@@ -50,15 +50,7 @@ public static void loop() {
 
     final MessageQueue queue = me.mQueue;//拿到MessageQueue
 
-    Binder.clearCallingIdentity();
-    final long ident = Binder.clearCallingIdentity();
-    final int thresholdOverride =
-            SystemProperties.getInt("log.looper."
-                    + Process.myUid() + "."
-                    + Thread.currentThread().getName()
-                    + ".slow", 0);
-
-    boolean slowDeliveryDetected = false;
+    ...
 
     //接下来就是启动个死循环，为什么不用while而用for呢？
     for (;;) {
@@ -75,14 +67,25 @@ public static void loop() {
             //...
         }
 
-        //无论如何都会回收消息
+        //回收消息
         msg.recycleUnchecked();
     }
 ```
 
-这里死循环的写法比较特殊，为什么不用`while(true)`或者`do-while(true)`呢？一开始总是想不明白。后来发现，用while系列循环，无论如何都要传递个表达式进去，那么就涉及到了内存占用。而用空for循环，则不必创建任何变量或结构体，能够最大限度的降低内存占用，真是学到了。
+这里死循环的写法比较特殊，为什么不用`while(true)`或者`do-while(true)`呢？一开始总是想不明白。后来发现，用while系列循环，无论如何都要传递个表达式进去，那么就涉及到了内存占用和CPU运算。而用空for循环，则不必创建任何变量或结构体，能够最大限度的降低内存和CPU占用，真是学到了。
 
 今天又突然想到，既然涉及到表达式，那么每次循环的时候都需要判断表达式是否成立，无可避免浪费了cpu，同时带来了cpu计算单元做无效计算带来的性能损失。
+
+上面的代码中可以看到，当没有msg时，loop就会退出，那么问题来了，什么时候会没有msg呢？并且一旦loop退出，那么主线程不也就跟着退出了吗？目前我的猜想是，当没有消息时，Android通过epool机制让cpu休眠，当有了新的msg时又会唤醒cpu，从而保证一直存在msg。而休眠的时机是在`messageQueue`的`next()`方法中进行的：
+
+```java
+if (msg != null) {
+    ...
+} else {
+    //如果当前没有消息，把唤醒时钟设为-1，那么意味着线程会沉睡Integer.MaxValue
+    nextPollTimeoutMillis = -1;
+}
+```
 
 ## 主线程中为何不ANR也不会内存泄露
 
@@ -149,9 +152,9 @@ void quit(boolean safe) {
 }
 ```
 
-主要是修改了`mQuitting = true;`，这就是个标记，用来判断是否终止死循环。造成的效果呢当然是在`loop`方法的死循环中调用`mqueue.next()`时，会收到下面的影响：
+主要是修改了`mQuitting = true;`，这就是个标记，用来判断是否终止死循环。造成的效果呢当然是在`loop`方法的死循环中调用`mqueue.next()`时，会受到下面代码的影响：
 
-```
+```java
 if (mQuitting) {
     dispose();
     return null;
@@ -169,7 +172,7 @@ private native static void nativeDestroy(long ptr);
 
 直接返回null，而在Looper的`loop`方法的死循环中有这样的判断：
 
-```
+```java
 ...
 Message msg = queue.next(); // might block
 if (msg == null) {
@@ -181,3 +184,10 @@ if (msg == null) {
 ```
 
 如果`queue.next`返回null那么就终止循环。
+
+### 总结
+
+`Looper`其实比较简单，核心就两个方法：
+
+1. `prepary()`方法用来创建`MessageQueue`和`ThreadLocal`；
+2. `loop()`方法就是永动机，不断从message中拿出msg来消费。
