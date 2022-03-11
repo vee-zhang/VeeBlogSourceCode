@@ -54,17 +54,36 @@ tags:
 |take|yes|取走队列首位元素，如果没有就会阻塞线程直到有了为止|
 |drainTo||一次性获取多个或全部元素|
 
+## Java默认线程池
 
-## ThreadPoolExecutor
+- `Executors.newCachedThreadPool()`，创建一个可缓存的无界线程池，如果线程池长度超过处理需要，可灵活回收空线程，若无可回收，则新建线程。当线程空闲超过60秒自动回收，当任务超过线程池的线程数，可无限创建新线程；
+- `Executors.newFixedThreadPool(int nThreads)`，创建一个指定大小的线程池，可控制线程的最大并发数，超出的线程会在`LinkedBlockingQueue`阻塞队列中等待；
+- `Executors.newScheduledThreadPool`，创建一个定长的线程池，可以指定线程池核定线程数，**支持定时及周期性任务**的执行；
+- `Executors.newSingleThreadExecutor`，创建一个单线程的线程池。
+- `Executors.newWorkStealingPool（java8引入）`，创建一个更加高效的线程池，不同于以上四种线程池，这个线程池拓展于`ForkJoinPool`，适合用于非常耗时或自任务众多的场景。
+
+
+前四种是我们一般用到的线程池，都是拓展自ThreadPoolExecutor类。
+
+## 自定义线程池与ThreadPoolExecutor
+
+我们也可以通过使用`ThreadPoolExecutor`类实现自定义线程池。
 
 ```java
-public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory)
+public ThreadPoolExecutor(
+    int corePoolSize,
+    int maximumPoolSize,
+    long keepAliveTime,
+    TimeUnit unit,
+    BlockingQueue<Runnable> workQueue,
+    ThreadFactory threadFactory
+)
 ```
 
 参数解析：
 
 1. corePoolSize
-    线程池的核心线程数，默认情况下，核心线程会在线程池中一直存活，即使它们处于闲置状态。如果将ThreadPoolExecutor的allowCoreThreadTimeOut属性设置为true，那么闲置的核心线程在等待新任务到来时会有超时策略，这个时间间隔由keepAliveTime所指定，当等待时间超过keepAliveTime所指定的时长后，核心线程就会被终止。
+    线程池的核心线程数，默认情况下，核心线程会在线程池中一直存活，即使它们处于闲置状态。如果通过`allowCoreThreadTimeOut(boolean value)`方法设置为true，那么闲置的核心线程在等待新任务到来时会有超时策略，这个时间间隔由keepAliveTime所指定，当等待时间超过keepAliveTime后，核心线程就会被终止。
 2. maximumPoolSize 
     线程池所能容纳的最大线程数，当活动线程数达到这个数值后，后续的新任务将会被阻塞。
 3. keepAliveTime
@@ -133,9 +152,7 @@ AsyncTask的配置：
 private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
 
 public void execute(Runnable command) {
-    //非空判断
-    if (command == null)
-        throw new NullPointerException();
+    
     //当前运行的任务数
     int c = ctl.get();
 
@@ -169,7 +186,7 @@ public void execute(Runnable command) {
 
 - 如果当前任务数小于核心线程数，就直接`addWorker`；
 - 如果大于核心线程数，就把任务添加到阻塞队列；
-- 如果队列已满，还是`addworker`;
+- 如果队列已满，尝试`addworker`;
 - 如果队列满，addWorker失败，则执行拒绝策略。
 
 ### addWorker线程调度
@@ -180,7 +197,7 @@ private final HashSet<Worker> workers = new HashSet<>();
 
 private boolean addWorker(Runnable firstTask, boolean core) {
     
-     //使用cas失败自旋来保证线程竞争问题
+    //使用cas失败自旋来保证线程竞争问题
     retry:
     for (;;) {
         int c = ctl.get();
@@ -188,9 +205,8 @@ private boolean addWorker(Runnable firstTask, boolean core) {
 
         // Check if queue empty only if necessary.
         if (rs >= SHUTDOWN &&
-            ! (rs == SHUTDOWN &&
-                firstTask == null &&
-                ! workQueue.isEmpty()))
+            ! (rs == SHUTDOWN && firstTask == null && !workQueue.isEmpty())
+            )
             return false;
 
         for (;;) {
@@ -456,10 +472,3 @@ for (int i = 0; i < 100; i++) {
     }
 }
 ```
-
-## 分类
-
-- FixedThreadPool 线程数量固定，只有核心线程，当线程处于空闲状态时不会被回收。
-- CachedThreadPool 数量不固定，只有非核心线程，最大线程数为`Integer.MAX_VALUE`。
-- CachedThreadPool 核心线程数固定，非核心线程数没有限制，非核心线程闲置时会立刻被回收。主要用于执行定时任务，和具有固定周期的重复任务。
-- SingleThreadExecutor 只有一个核心线程，确保串行。
