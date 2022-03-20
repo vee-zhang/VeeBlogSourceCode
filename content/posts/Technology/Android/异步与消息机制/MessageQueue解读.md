@@ -376,15 +376,16 @@ if (msg != null && msg.target == null) {
                 msg.next = p;
                 mMessages = msg;
             }
-            return token;
+            return token; 
         }
     }
 ```
 
 #### 总结
 
+- MessageQueue是一个由单链表实现的优先级队列；
 - 屏障消息和普通消息区别在于屏幕没有target，普通消息有target是因为它需要将消息分发给对应的target，而屏障不需要被分发，它就是用来挡住普通消息来保证异步消息优先处理的；
 - 屏障和普通消息一样可以根据时间来插入到消息队列中的适当位置，并且**只会挡住它后面的同步消息的分发**；
 - postSyncBarrier会返回一个token，利用这个token可以撤销屏障；
 - postSyncBarrier是hide的，使用它得用反射；
-- 插入普通消息会唤醒消息对了，但插入屏障不会。
+- 插入普通消息会唤醒消息队列，但插入屏障不会。

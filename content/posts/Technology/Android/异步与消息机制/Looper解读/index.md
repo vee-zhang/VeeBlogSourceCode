@@ -16,6 +16,7 @@ public static void prepare() {
 }
 
 private static void prepare(boolean quitAllowed) {
+    // 如果线程已经有了Looper就会报错
     if (sThreadLocal.get() != null) {
         throw new RuntimeException("Only one Looper may be created per thread");
     }
@@ -191,3 +192,5 @@ if (msg == null) {
 
 1. `prepary()`方法用来创建`MessageQueue`和`ThreadLocal`；
 2. `loop()`方法就是永动机，不断从message中拿出msg来消费。
+3. 只有调用`quitSafely()`或者`quit()`这两个方法修改`mQuitting`这个标记位，使MessageQueue的`next()`方法返回null，才能退出`loop()`方法。
+4. 一个线程只有一个Looper，是通过ThreadLocal实现的。

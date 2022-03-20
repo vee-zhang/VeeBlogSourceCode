@@ -45,9 +45,16 @@ ThreadLocal是线程上下文的存储便变量，
 8. 多个Handler向MessageQueue中添加数据，但是他们处于不同的线程中，怎么确保数据安全？
    `sysnchronized`锁了this，锁的是当前的`MessageQueue`对象，他的所有的函数和代码块都会受限。
 9. 主线程是否允许quit？
-    主线程不允许，一旦调用就会抛异常。
+    主线程不允许，一旦调用就会抛异常。Zygote会fork自身，给每一个应用创建JVM，然后启动AcitivityThread，在后者执行的main方法中会调用`Looper.preparyMainLooper()`和`Looper.loop()`，应用的所有的代码都是在这个loop方法中运行的。
+10. 夸线程通信的原理？
+    通过共享内存实现。
+11. 为什么线程间不会干扰？
+    通过锁。
+12. 为什么不用wait/notify?
+    因为Java的wait/notify底层调用c++实现，Android自己实现了一个基于linux的epoll机制，效率更高？
+
+
 
 ## TODO
 
-1. 同步屏障的原理
-2. ThreadLocal原理进一步了解
+1. ThreadLocal原理进一步了解
