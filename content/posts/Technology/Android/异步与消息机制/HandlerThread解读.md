@@ -22,6 +22,8 @@ Handler workHandler = new Handler(mHandlerThread.getLooper()) {
         super.handleMessage(msg);
 
         Log.d("handler", "收到消息: " + msg.obj);
+
+        // 注意，不能在此处修改UI,因为workHandler还是位于工作线程，需要切换到主线程去修改UI
     }
 };
 
@@ -74,6 +76,7 @@ public class HandlerThread extends Thread {
         Looper.prepare();
         synchronized (this) {
             mLooper = Looper.myLooper();
+            //完成之后唤醒需要使用looper的线程，主要是针对getLooper()方法
             notifyAll();
         }
         Process.setThreadPriority(mPriority);
@@ -90,10 +93,13 @@ public class HandlerThread extends Thread {
             return null;
         }
         
-        // If the thread has been started, wait until the looper has been created.
+        // 确保Looper一定能实例化
         synchronized (this) {
+
+            // 自旋
             while (isAlive() && mLooper == null) {
                 try {
+                    // 阻塞调用的线程，直到run方法中looper初始化完成
                     wait();
                 } catch (InterruptedException e) {
                 }
@@ -140,6 +146,6 @@ public class HandlerThread extends Thread {
 
 ## 总结
 
-`HandlerThread`本身就是一个线程，只不过它持有`Looper`,在`run()`方法内部实现了`Looper.prepary()`和`Looper.loop()`。所以任务也只能串行。
-
-使用完要手动退出，否则线程一直存在。
+- `HandlerThread`本身就是一个线程，只不过它持有`Looper`,在`run()`方法内部实现了`Looper.prepary()`和`Looper.loop()`。所以任务也只能串行。
+- 由于Looper是异步创建的，通过锁机制配合`wait/notifyAll`实现了一个阻塞唤醒机制，保证Looper在异步状态下必定能创建成功。
+- 使用完要手动退出，否则线程一直存在。

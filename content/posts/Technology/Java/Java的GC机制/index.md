@@ -108,7 +108,7 @@ WeakReference<Object> sr = new WeakReference<>(new Object());
 
 - 效率高
 - 没有碎片问题
-- 从原理上看浪费了一般空间
+- 从原理上看浪费了一半空间
 
 ### 标记整理算法（老年代采用）
 
