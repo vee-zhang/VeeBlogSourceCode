@@ -41,6 +41,8 @@ ActivityManagerService诞生自SystemServer，主要负责四大组件的启动�
 
 ![AMS与GUI的关系](AMS与GUI的关系.png)
 
+实际上他就是个Binder,可以用来IPC
+
 ### Hook点
 
 binder天然带有调用者的身份信息uid和进程信息pid 。

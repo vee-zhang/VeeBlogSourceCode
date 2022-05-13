@@ -37,6 +37,6 @@ license: ""
 4. App进程，通过`Binder`向`AMS`发起`attachApplication`请求；
 5. AMS收到请求后，进行一系列准备工作后，通过binder向App进程发送scheduleLaunchActivity请求；
 6. App进程的`ApplicationThread`收到请求后，通过`handler`向`ActivityThread`发送LAUNCH_ACTIVITY消息；
-7. ActivityThread收到消息后，通过发射机制创建目标Activity，并回调Activity的`onCreate()`等生命周期方法。
+7. ActivityThread收到消息后，通过反射机制创建目标Activity，并回调Activity的`onCreate()`等生命周期方法。
 8. 当`onResume`执行完毕后UI开始渲染，渲染完毕后，App正式启动完毕。
 
