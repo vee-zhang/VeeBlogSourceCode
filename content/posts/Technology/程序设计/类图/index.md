@@ -1,8 +1,8 @@
 ---
 title: "类图"
 subtitle: ""
-date: 2022-06-04T17:26:13+08:00
-lastmod: 2022-06-04T17:26:13+08:00
+date: 2022-06-08T09:20:05+08:00
+lastmod: 2022-06-08T09:20:05+08:00
 draft: false
 authors: []
 description: ""
@@ -26,60 +26,113 @@ license: ""
 ---
 
 <!--more-->
-## 类描述
-
-```yuml
-// {type:class}
-[≪IDisposable≫;Customer|+forname: string;+surname: string;-password: string|login(user,pass)]
-```
-
-一个类可以分为`类描述`、`变量常量描述`、`方法描述`三个区。
-
-### 类图表示：
-
-- 普通类，粗体；
-- 接口，类名前要加`<<interface>>`修饰符；
-- 抽象类，一般用粗斜体字，但是yuml没有这个字体，所以我只能`<<abstruct>>`。
-
-#### 可见性修饰符
-
-| 作用域    | 描述符 |
-| --------- | ------ |
-| public    | +      |
-| protected | #      |
-| private   | -      |
-| package   | 空     |
-
-### yuml语法
+## yuml类图基本格式
 
 ```
 // {type:class}
-[≪IDisposable≫;Customer|+forname: string;+surname: string;-password: string|login(user,pass)]
+// {direction:topDown}
+// {generate:true}
+
+[note: You can stick notes on diagrams too!{bg:cornsilk}]
+
+[Customer]<>1-orders 0..*>[Order]
+[Order]++*-*>[LineItem]
+[Order]-1>[DeliveryMethod]
+[Order]*-*>[Product|EAN_Code|promo_price()]
+[Category]-.->[Product]
+[DeliveryMethod]^[National]
+[DeliveryMethod]^[International]
 ```
+
+上面是个列子。
+
+| Item                    | Example                                       |
+| ----------------------- | --------------------------------------------- |
+| Class                   | [Customer]                                    |
+| Directional(单向关联)   | [Customer]->[Order]                           |
+| Bidirectional(双向关联) | [Customer]<->[Order]                          |
+| Aggregation(聚合)       | [Customer]+-[Order] or [Customer]<>-[Order]   |
+| Composition(组合)       | [Customer]++-[Order]                          |
+| Inheritance(泛化)       | [Customer]^[Cool Customer]                    |
+| Dependencies(依赖)      | [Customer]uses-.->[PaymentStrategy]           |
+| Cardinality             | [Customer]<1-1..2>[Address]                   |
+| Labels                  | [Person]customer-billingAddress[Address]      |
+| Notes                   | [Address]-[note: Value Object]                |
+| Full Class              | `[Customer                                    |
+| Color splash            | [Customer{bg:orange}]<>1->\*[Order{bg:green}] |
+
+## 访问修饰符
+
+| 修饰符 | 描述      |
+| ------ | --------- |
+| +      | public    |
+| -      | private   |
+| #      | protected |
+| 无     | package   |
 
 ## 关系
 
-类与类（接口）之间的关系有6种：
+### 依赖关系
 
-- 泛化（继承）
-- 实现
-- 关联
-- 聚合
-- 组合
-- 依赖
+表示一种临时性的，借助外部事物的【使用】关系，比如我们要打电话，此时需要一台手机，那么就是person依赖mobilePhone，但是人的身体里并没有手机，手机是外部的。一般在代码中的体现就是，某个类通过调用其他类的某些方法完成任务，叫做”某个类“依赖”其他类”。
 
-### 泛化 空心箭
-
-在JAVA中表示**继承**关系，采用空心箭头指向父类，yuml符号为^
-
-```yuml
+```
 // {type:class}
-
-[Person]^[Student]
+[Customer]uses-.->[PaymentStrategy]
 ```
 
-### 实现  虚线空间箭
+### 泛化关系
 
-实现关系：是一种**继承**关系，表示子类继承父类的所有特征和行为。
-关系连线：空心箭头指向父类。
-yuml符号：^
+泛化关系式对象之间耦合度最大的关系，表示一种扩展（继承）关系，是符合`is-a`的关系。
+
+表示为空心箭头：
+
+```
+// {type:class}
+[Student]^[Person]
+```
+
+### 实现关系
+
+接口与实现类的关系。
+
+表示为虚线+空心箭头。
+
+```
+// {type:class}
+[Student]^[Person]
+```
+
+### 关联关系
+
+是对象之间的一种引用关系，表示一类对象与另一类对象之间的联系。JAVA中一般指类内部包含的属性，而这个属性一般是其他类型。
+
+#### 单向&双向关联
+
+在代码中通常将一个类的对象作为另一个类的成员变量来实现关联关系。
+
+```
+[Customer]<->[Order]
+```
+
+表示为实线+实心箭头指向被关联的类。
+
+#### 聚合
+
+聚合（Aggregation）关系是关联关系的一种，是强关联关系，是整体和部分之间的关系，是 has-a 的关系。
+
+聚合关系也是通过成员对象来实现的，其中成员对象是整体对象的一部分，但是**成员对象可以脱离整体对象而独立存在**。例如，学校与老师的关系，学校包含老师，但如果学校停办了，老师依然存在。
+
+表示为实线+空心菱形（指向整体）。
+
+```
+[Teacher]+-[University]
+```
+
+#### 组合
+
+表示类之间的“整体”与“部分”的关系。是`contains-a`关系。
+
+在组合关系中，整体对象可以控制部分对象的生命周期，一旦整体对象不对在，部分对象也将不存在，**部分对象不能脱离整体对象而存在**。
+
+表示为实线+实心菱形指向整体。
