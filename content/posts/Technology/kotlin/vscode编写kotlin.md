@@ -44,9 +44,11 @@ license: ""
 时间来到最近，我看了几篇在vscode上搭建c++环境的文章，根本不需要什么codeRunner，今天闲下来突然灵机一动，我照猫画虎，终于搞定了！✌🏻
 ## 插件选择
 
-https://marketplace.visualstudio.com/items?itemName=fwcd.kotlin
+需要[这个](https://marketplace.visualstudio.com/items?itemName=fwcd.kotlin)和[这个](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle-extension-pack)
 
-目前最好用的kotlin-languageServer，还带代码补全（不好用）和lint还有debug。
+目前最好用的kotlin-languageServer，还带代码补全（聊胜于无）和lint还有debug。
+
+另一个是巨硬官方的gradle插件，稳定性可靠。
 
 ## gradle环境变量
 
