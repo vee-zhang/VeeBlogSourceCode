@@ -543,7 +543,7 @@ ninja: build stopped: subcommand failed.
 
 再次整编成功！
 
-[ ]后面需要详细了解一下[兼容性矩阵](https://source.android.google.cn/devices/architecture/vintf/comp-matrices)。
+- [ ] 后面需要详细了解一下[兼容性矩阵](https://source.android.google.cn/devices/architecture/vintf/comp-matrices)。
 
 ### 添加本地c++测试
 
@@ -715,7 +715,7 @@ $ adb push  out/target/product/$TARGET_PRODUCT/vendor/bin/sample.hardware.hellow
 
 >我尝试直接整编，然后刷机，后续操作直接失败，说是找不到服务，然后进手机对应的目录，确实没有发现对应的库，暂时不知道是为什么。所以还是需要自己push到设备上。
 
-[ ]整编刷机的问题
+- [ ] 整编刷机的问题
 
 ### 启动服务
 
