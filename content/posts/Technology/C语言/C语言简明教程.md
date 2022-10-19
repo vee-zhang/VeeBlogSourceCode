@@ -1,9 +1,9 @@
 ---
-title: "语言简明教程"
+title: "C语言简明教程"
 subtitle: ""
 date: 2022-10-17T15:49:18+08:00
 lastmod: 2022-10-17T15:49:18+08:00
-draft: fase
+draft: false
 authors: []
 description: ""
 
