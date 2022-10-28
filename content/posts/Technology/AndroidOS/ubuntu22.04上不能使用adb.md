@@ -1,5 +1,5 @@
 ---
-title: "ubuntu22.04上不能使用adb.md"
+title: "ubuntu22.04上不能使用adb"
 date: 2022-10-10T17:24:07+08:00
 draft: false
 ---

@@ -1,5 +1,5 @@
 ---
-title: "C语言简明教程"
+title: "西语言简明教程"
 subtitle: ""
 date: 2022-10-17T15:49:18+08:00
 lastmod: 2022-10-17T15:49:18+08:00
@@ -11,18 +11,6 @@ tags: []
 categories: []
 series: []
 
-hiddenFromHomePage: false
-hiddenFromSearch: false
-
-featuredImage: ""
-featuredImagePreview: ""
-
-toc:
-  enable: true
-math:
-  enable: false
-lightgallery: false
-license: ""
 ---
 
 <!--more-->
