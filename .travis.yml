@@ -3,9 +3,6 @@ language: go
 go:
   - "1.8" # 指定Golang 1.8
 
-node_js:
-  - 16
-
 env:
   global:
     # Github Pages
