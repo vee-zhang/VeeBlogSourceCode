@@ -26,9 +26,9 @@ branches:
 # - cd hugo
 # - go install
 
-before_install:
-  - sudo apt update
-  - sudo apt upgrade
+# before_install:
+#   - sudo apt update
+#   - sudo apt upgrade
 
 install:
   # 安装hugo
