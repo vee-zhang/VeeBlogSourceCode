@@ -26,6 +26,10 @@ branches:
 # - cd hugo
 # - go install
 
+before_install:
+  - sudo apt update
+  - sudo apt upgrade
+
 install:
   # 安装hugo
   #- wget -q -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.86.0/hugo_extended_0.86.0_Linux-64bit.deb
