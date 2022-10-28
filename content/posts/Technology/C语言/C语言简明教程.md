@@ -383,7 +383,7 @@ struct address
 };
 int main()
 {
-    struct address A[3]={{"Zhang","Road NO.1",111111,4444},
+    struct address A[3]={"Zhang","Road NO.1",111111,4444},
     {"Wang"," Road NO.2",222222,5555},
     {"Li"," Road NO.3",333333,6666}};
     struct address *p;
