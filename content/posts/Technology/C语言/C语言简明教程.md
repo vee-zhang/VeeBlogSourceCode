@@ -51,6 +51,20 @@ int main(void){
 | 双精度浮点   | double          | 8          |
 | 长双精度浮点 | long double     | 10         |
 
+#### 类型转换
+
+```
+(type_name) expression
+```
+
+eg:
+
+```
+(float) a;  //将变量 a 转换为 float 类型
+(int)(x+y);  //把表达式 x+y 的结果转换为 int 整型
+(float) 100;  //将数值 100（默认为int类型）转换为 float 类型
+```
+
 ### 数组
 
 ```
