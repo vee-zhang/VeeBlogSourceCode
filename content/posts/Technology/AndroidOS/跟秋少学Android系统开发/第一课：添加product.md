@@ -8,8 +8,8 @@ authors: []
 description: ""
 
 tags: []
-categories: [AOSP入门]
-series: []
+categories: [AOSP]
+series: [跟秋少学Android系统开发]
 
 hiddenFromHomePage: false
 hiddenFromSearch: false
