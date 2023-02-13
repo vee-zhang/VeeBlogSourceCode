@@ -55,7 +55,7 @@ jobs:
         run: |
           hugo \
             --minify \
-            --baseURL "${{ github.com/vee-zhang/vee-zhang.github.io }}/"
+            --baseURL "${{ https://vee-zhang.github.io }}/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
