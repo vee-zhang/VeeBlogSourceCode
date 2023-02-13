@@ -59,15 +59,24 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }} # 这里的 ACTIONS_DEPLOY_KEY 则是上面设置 Private Key的变量名
+          external_repository: vee-zhang/vee-zhang.github.io # Pages 远程仓库 
+          publish_dir: ""
+          keep_files: false # remove existing files
+          publish_branch: master  # deploying branch
+          commit_message: ${{ github.event.head_commit.message }}
 
   # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ https://github.com/vee-zhang/vee-zhang.github.io }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+  # deploy:
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ https://github.com/vee-zhang/vee-zhang.github.io }}
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v1
