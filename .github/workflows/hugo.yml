@@ -69,7 +69,7 @@ jobs:
         with:
           deploy_key: ${{ secrets.OFFICE_UBUNTU }} # 这里的 ACTIONS_DEPLOY_KEY 则是上面设置 Private Key的变量名
           external_repository: vee-zhang/vee-zhang.github.io # Pages 远程仓库 
-          publish_dir: ""
+          publish_dir: "./public"
           keep_files: true # remove existing files
           publish_branch: master  # deploying branch
           commit_message: ${{ github.event.head_commit.message }}
