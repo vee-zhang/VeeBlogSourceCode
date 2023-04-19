@@ -229,7 +229,7 @@ enableEmoji = true
 [params]
   
   # DoIt 主题版本
-  version = "0.2.X"
+  version = "0.3.X"
   
   # 网站默认主题 ("light", "dark", "black", "auto")
   defaultTheme = "auto"
@@ -361,7 +361,7 @@ enableEmoji = true
     rssFullText = false
     # Page style ("normal", "wide")
     # 页面样式 ("normal", "wide")
-    #pageStyle = "wide"
+    pageStyle = "wide"
     # Table of the contents config
     # 目录配置
     [params.page.toc]
