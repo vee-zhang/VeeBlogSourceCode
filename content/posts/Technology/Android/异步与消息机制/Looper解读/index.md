@@ -1,7 +1,28 @@
 ---
-title: Looper解读
+title: "Looper解读"
+subtitle: ""
 date: 2021-03-02 17:30:46
+lastmod: 2021-03-02 17:30:46
+draft: false
+authors: []
+description: ""
+
 tags: [Android]
+categories: []
+series: [Android性能优化]
+
+hiddenFromHomePage: false
+hiddenFromSearch: false
+
+featuredImage: ""
+featuredImagePreview: ""
+
+toc:
+  enable: true
+math:
+  enable: false
+lightgallery: false
+license: ""
 ---
 
 ## 类图
