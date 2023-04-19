@@ -361,7 +361,7 @@ enableEmoji = true
     rssFullText = false
     # Page style ("normal", "wide")
     # 页面样式 ("normal", "wide")
-    pageStyle = "wide"
+    #pageStyle = "wide"
     # Table of the contents config
     # 目录配置
     [params.page.toc]
