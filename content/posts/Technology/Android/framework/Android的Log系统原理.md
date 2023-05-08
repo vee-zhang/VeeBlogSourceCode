@@ -27,6 +27,35 @@ license: ""
 
 <!--more-->
 
+## 写在前面
+
+参考：
+https://www.cnblogs.com/andy-songwei/p/9676823.html
+https://blog.csdn.net/shift_wwx/article/details/89138117
+
+https://blog.csdn.net/u010128475/article/details/125074826
+https://blog.csdn.net/u010128475/article/details/125155785
+
+https://blog.51cto.com/u_15243273/5426776
+
+https://blog.csdn.net/temp7695/article/details/126227952
+https://juejin.cn/post/7137179033480986655
+
+
+规范：
+1. 不允许使用VEROSE级别的log
+2. INFO、WARN只允许打印少量重要信息；
+3. 只有出现极严重的错误的时候才可使用ERROR（比如导致系统的崩溃）
+4. 尽量使用DEBUG级别。
+5. 用户的隐私信息进制打印。
+6. 禁止再循环中打印log。
+7. 尽量不打印堆栈
+
+
+adb shell setprop log.tag.tagName level 不仅会改变Log.isLoggable(tag,level)的返回值，也会影响到Log.v() - Log.e() 是否打印
+
+## 正文
+
 当我从`Log.d()`开始追踪，会进入`android.util.Log`的`print()`函数：
 
 ```java
