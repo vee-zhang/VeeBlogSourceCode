@@ -4,7 +4,8 @@ baseURL = "https://vee-zhang.github.io"
 defaultContentLanguage = "zh-cn"
 
 # 主题
-theme = "DoIt"
+#theme = "DoIt"
+theme = "hyde"
 
 # 主题目录
 themesDir = "themes"

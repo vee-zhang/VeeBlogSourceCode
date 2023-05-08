@@ -1,12 +1,6 @@
 [submodule "themes/DoIt"]
 	path = themes/DoIt
 	url = https://github.com/HEIGE-PCloud/DoIt.git
-[submodule "themw/hyde"]
-	path = themw/hyde
-	url = https://github.com/spf13/hyde.git
-[submodule "theme/hyde"]
-	path = theme/hyde
-	url = https://github.com/spf13/hyde.git
 [submodule "themes/hyde"]
 	path = themes/hyde
 	url = https://github.com/spf13/hyde.git
