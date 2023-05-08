@@ -42,7 +42,8 @@ https://blog.csdn.net/temp7695/article/details/126227952
 https://juejin.cn/post/7137179033480986655
 
 
-规范：
+## 规范：
+
 1. 不允许使用VEROSE级别的log
 2. INFO、WARN只允许打印少量重要信息；
 3. 只有出现极严重的错误的时候才可使用ERROR（比如导致系统的崩溃）
@@ -50,11 +51,23 @@ https://juejin.cn/post/7137179033480986655
 5. 用户的隐私信息进制打印。
 6. 禁止再循环中打印log。
 7. 尽量不打印堆栈
+8. 尽量不要在生产环境打印debg级别
+9. 打印exception信息一般使用Warn级别，而Error级别用于打印更为危险的信息，比如系统的崩溃等。
+10. 使用门面模式对应用模块与日志工具解耦。
 
 
 adb shell setprop log.tag.tagName level 不仅会改变Log.isLoggable(tag,level)的返回值，也会影响到Log.v() - Log.e() 是否打印
 
 ## 正文
+
+![](logd.png)
+![](log通信过程.png)
+
+可以使用`Log.isLoggable(tagName,level)`来判断是否允许打印log，然后可以在user版本中，通过下面的指令来控制日志的输出：
+
+```
+adb shell setprop log.tag.tagName level
+```
 
 当我从`Log.d()`开始追踪，会进入`android.util.Log`的`print()`函数：
 
@@ -362,6 +375,10 @@ static jint android_util_Log_println_native(JNIEnv* env, jobject clazz,
 ```
 
 核心调用是__android_log_buf_write(bufID, (android_LogPriority)priority, tag, msg);，位于`system/core/liblog/logger_write.c`：
+
+## liblog
+
+位于`system/core/liblog`
 
 ```c++
 LIBLOG_ABI_PUBLIC int __android_log_buf_write(int bufID, int prio, const char* tag, const char* msg) {
@@ -804,7 +821,7 @@ service logd /system/bin/logd
     writepid /dev/cpuset/system-background/tasks
 
 service logd-reinit /system/bin/logd --reinit
-    oneshot
+    oneshot// 表示只调用一次
     disabled
     user logd
     group logd
@@ -844,6 +861,49 @@ u_seq  LISTEN     0      0      /dev/socket/logdr 17510                 * 0     
 ```c++
 int main(int argc, char* argv[]) {
     // ...
+
+    static const char dev_kmsg[] = "/dev/kmsg";
+    fdDmesg = android_get_control_file(dev_kmsg);
+    if (fdDmesg < 0) {
+        fdDmesg = TEMP_FAILURE_RETRY(open(dev_kmsg, O_WRONLY | O_CLOEXEC));
+    }
+
+    int fdPmesg = -1;
+    bool klogd = __android_logger_property_get_bool(
+        "ro.logd.kernel",
+        BOOL_DEFAULT_TRUE | BOOL_DEFAULT_FLAG_ENG | BOOL_DEFAULT_FLAG_SVELTE);
+    if (klogd) {
+        static const char proc_kmsg[] = "/proc/kmsg";
+        fdPmesg = android_get_control_file(proc_kmsg);
+        if (fdPmesg < 0) {
+            fdPmesg = TEMP_FAILURE_RETRY(
+                open(proc_kmsg, O_RDONLY | O_NDELAY | O_CLOEXEC));
+        }
+        if (fdPmesg < 0) android::prdebug("Failed to open %s\n", proc_kmsg);
+    }
+
+
+    // 启动 Reinit Thread
+    sem_init(&reinit, 0, 0);
+    sem_init(&uidName, 0, 0);
+    sem_init(&sem_name, 0, 1);
+    pthread_attr_t attr;
+    if (!pthread_attr_init(&attr)) {
+        struct sched_param param;
+
+        memset(&param, 0, sizeof(param));
+        pthread_attr_setschedparam(&attr, &param);
+        pthread_attr_setschedpolicy(&attr, SCHED_BATCH);
+        if (!pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)) {
+            pthread_t thread;
+            reinit_running = true;
+            // 等待reinit信号
+            if (pthread_create(&thread, &attr, reinit_thread_start, nullptr)) {
+                reinit_running = false;
+            }
+        }
+        pthread_attr_destroy(&attr);
+    }
      
     // LogBuffer，作用：存储所有的日志信息
     logBuf = new LogBuffer(times);
@@ -864,6 +924,20 @@ int main(int argc, char* argv[]) {
     CommandListener* cl = new CommandListener(logBuf, reader, swl);
     if (cl->startListener()) {
         exit(1);
+    }
+
+    LogAudit* al = nullptr;
+    if (auditd) {
+        al = new LogAudit(logBuf, reader,
+                          __android_logger_property_get_bool(
+                              "ro.logd.auditd.dmesg", BOOL_DEFAULT_TRUE)
+                              ? fdDmesg
+                              : -1);
+    }
+
+    LogKlog* kl = nullptr;
+    if (klogd) {
+        kl = new LogKlog(logBuf, reader, fdDmesg, fdPmesg, al != nullptr);
     }
     // ...
     exit(0);
@@ -892,6 +966,48 @@ logd           335   354     1   43924  23872 do_syslog           0 S logd.klogd
 logd           335   355     1   43924  23872 poll_sche+          0 S logd.auditd
 logd           335   624     1   43924  23872 futex_wai+          0 S logd.reader.per
 logd           335   666     1   43924  23872 futex_wai+          0 S logd.reader.per
+```
+main函数中会启动reinit线程，等待reinit信号，之前我们从init.rc中得知启动logd之后就会启动logd-reinit，所以此时还是会调用main方法，但这次会传入`-reinit`参数调用到`issueReinit`，发送reinit指令，使得`reinit_thread_start`函数会被调用：
+
+```c++
+static void* reinit_thread_start(void* /*obj*/) {
+    prctl(PR_SET_NAME, "logd.daemon");
+    while (reinit_running && !sem_wait(&reinit) && reinit_running) {
+        if (fdDmesg >= 0) {
+            static const char reinit_message[] = { KMSG_PRIORITY(LOG_INFO),
+                                                   'l',
+                                                   'o',
+                                                   'g',
+                                                   'd',
+                                                   '.',
+                                                   'd',
+                                                   'a',
+                                                   'e',
+                                                   'm',
+                                                   'o',
+                                                   'n',
+                                                   ':',
+                                                   ' ',
+                                                   'r',
+                                                   'e',
+                                                   'i',
+                                                   'n',
+                                                   'i',
+                                                   't',
+                                                   '\n' };
+            write(fdDmesg, reinit_message, sizeof(reinit_message));
+        }
+
+        // Anything that reads persist.<property>
+        if (logBuf) {
+            logBuf->init();
+            logBuf->initPrune(nullptr);
+        }
+        android::ReReadEventLogTags();
+    }
+
+    return nullptr;
+}
 ```
 
 ### LogListener
