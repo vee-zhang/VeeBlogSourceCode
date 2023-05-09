@@ -62,6 +62,7 @@ adb shell setprop log.tag.tagName level 不仅会改变Log.isLoggable(tag,level)
 
 ![](logd.png)
 ![](log通信过程.png)
+![](时序图.svg)
 
 可以使用`Log.isLoggable(tagName,level)`来判断是否允许打印log，然后可以在user版本中，通过下面的指令来控制日志的输出：
 
