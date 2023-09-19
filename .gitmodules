@@ -4,3 +4,15 @@
 [submodule "themes/grid"]
 	path = themes/grid
 	url = https://github.com/chipsenkbeil/grid-side
+[submodule "themes/FixIt"]
+	path = themes/FixIt
+	url = git@gitee.com:lruihao/FixIt.git
+[submodule "themes/hugo-theme-next"]
+	path = themes/hugo-theme-next
+	url = git@gitee.com:hugo-next/hugo-theme-next.git
+[submodule "themes/theme"]
+	path = themes/theme
+	url = https://github.com/spf13/hyde.git
+[submodule "themes/CaiJimmy"]
+	path = themes/CaiJimmy
+	url = git@github.com:CaiJimmy/hugo-theme-stack.git
